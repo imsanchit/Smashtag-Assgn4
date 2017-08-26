@@ -11,8 +11,11 @@ import Twitter
 
 protocol ImageTweetProtocol {
     func updateSearchText(_ text: String)
+
+    
 }
 class ImageTweetDetailsTableViewController: UITableViewController{
+    
     
     var delegate: ImageTweetProtocol?
     var tweet: Twitter.Tweet! { didSet { updateUI() } }
@@ -28,7 +31,7 @@ class ImageTweetDetailsTableViewController: UITableViewController{
     }
     
     private func updateUI(){
-            print("count is \(tweet.urls.count)  \(tweet.hashtags.count)  \(tweet.userMentions.count)  ")
+//            print("count is \(tweet.urls.count)  \(tweet.hashtags.count)  \(tweet.userMentions.count)  ")
            tableView.reloadData()
     }
     
@@ -161,11 +164,9 @@ class ImageTweetDetailsTableViewController: UITableViewController{
                 UIApplication.shared.openURL(url)
             }
         case 2:
-            print("Pressed \(indexPath.section)")
             self.delegate?.updateSearchText(tweet.hashtags[indexPath.row].description)
             self.navigationController?.popViewController(animated: true)
         case 3:
-            print("Pressed \(indexPath.section)")
             self.delegate?.updateSearchText(tweet.userMentions[indexPath.row].description)
             self.navigationController?.popViewController(animated: true)
         default : break

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16G29" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="HashtagCount" representedClassName=".HashtagCount" syncable="YES" codeGenerationType="category">
+        <attribute name="hashTag" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="searchTerm" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="Tweet" representedClassName=".Tweet" syncable="YES" codeGenerationType="category">
         <attribute name="created" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
@@ -11,8 +15,14 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tweet" inverseName="tweeter" inverseEntity="Tweet" syncable="YES"/>
     </entity>
+    <entity name="UserCount" representedClassName=".UserCount" syncable="YES" codeGenerationType="category">
+        <attribute name="searchTerm" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <elements>
         <element name="Tweet" positionX="-63" positionY="-18" width="128" height="103"/>
         <element name="TwitterUser" positionX="-513" positionY="-117" width="128" height="88"/>
+        <element name="HashtagCount" positionX="-486" positionY="-306" width="128" height="73"/>
+        <element name="UserCount" positionX="-288" positionY="-153" width="128" height="75"/>
     </elements>
 </model>

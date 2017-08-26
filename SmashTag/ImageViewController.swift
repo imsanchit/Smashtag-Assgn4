@@ -38,8 +38,6 @@ class ImageViewController: UIViewController , UIScrollViewDelegate {
             if let imageData = urlContents {
                 self?.imageView.image = UIImage(data: imageData)
                 self?.imageView.sizeToFit()
-//                imageViewObject = UIImageView (frame: CGRectMake(CGRectGetMidX(self.view.frame) - 150/2, 150, 150, 150))
-
                 self?.imageView.frame.size.height = UIScreen.main.bounds.height
                 self?.imageView.frame.size.width = UIScreen.main.bounds.width
             }
