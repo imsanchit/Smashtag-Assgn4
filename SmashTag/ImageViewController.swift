@@ -19,7 +19,7 @@ class ImageViewController: UIViewController , UIScrollViewDelegate {
             scrollView.delegate = self
             scrollView.minimumZoomScale = 0.03
             scrollView.maximumZoomScale = 1.5
-                  scrollView.contentSize = imageView.frame.size
+            scrollView.contentSize = imageView.frame.size
             scrollView.addSubview(imageView)
         }
     }
@@ -32,14 +32,21 @@ class ImageViewController: UIViewController , UIScrollViewDelegate {
         super.viewDidLoad()
     }
     
+   
+    @IBAction func moveBack(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     private func fetchImage() {
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let urlContents = try? Data(contentsOf: (self?.imageURL)!)
             if let imageData = urlContents {
-                self?.imageView.image = UIImage(data: imageData)
-                self?.imageView.sizeToFit()
-                self?.imageView.frame.size.height = UIScreen.main.bounds.height
-                self?.imageView.frame.size.width = UIScreen.main.bounds.width
+                DispatchQueue.main.async {
+                    self?.imageView.image = UIImage(data: imageData)
+                    self?.imageView.sizeToFit()
+                    self?.imageView.frame.size.height = UIScreen.main.bounds.height
+                    self?.imageView.frame.size.width = UIScreen.main.bounds.width
+                }
             }
         }
     }

@@ -108,7 +108,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tag-F9-RAe" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1612" y="-130"/>
+            <point key="canvasLocation" x="1233" y="27"/>
         </scene>
         <!--Smash Tweeters Table View Controller-->
         <scene sceneID="1Ll-RH-N9v">
@@ -152,7 +152,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MfJ-F4-0iF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2513" y="-259"/>
+            <point key="canvasLocation" x="2353" y="-218"/>
         </scene>
         <!--Image Tweet Details Table View Controller-->
         <scene sceneID="bBa-5J-beq">
@@ -187,13 +187,10 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" id="HuV-R0-hYD"/>
-                    <connections>
-                        <segue destination="g5X-Fd-FoN" kind="show" id="PCX-TA-8hs"/>
-                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="scv-0b-l1T" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2514" y="481"/>
+            <point key="canvasLocation" x="2353" y="532"/>
         </scene>
         <!--Image View Controller-->
         <scene sceneID="003-9l-KgH">
@@ -208,7 +205,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ozG-JD-lEM">
-                                <rect key="frame" x="16" y="64" width="343" height="554"/>
+                                <rect key="frame" x="16" y="64" width="343" height="603"/>
                             </scrollView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -219,13 +216,20 @@
                             <constraint firstItem="kCA-6q-JXV" firstAttribute="top" secondItem="ozG-JD-lEM" secondAttribute="bottom" id="vLs-9n-5qG"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="wMy-2s-y1B">
+                        <barButtonItem key="leftBarButtonItem" title="Cancel" id="JQU-zW-BSH">
+                            <connections>
+                                <action selector="moveBack:" destination="g5X-Fd-FoN" id="rQZ-6P-W4g"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="scrollView" destination="ozG-JD-lEM" id="JZ6-5J-yE2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GQD-sc-KgI" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3487" y="481"/>
+            <point key="canvasLocation" x="4402" y="531"/>
         </scene>
         <!--Recent Tweets Table Table View Controller-->
         <scene sceneID="ps7-tr-eAR">
@@ -252,9 +256,6 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
-                                <connections>
-                                    <segue destination="FoP-Zj-m9u" kind="show" identifier="open mention count" id="4uc-te-LXB"/>
-                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -266,12 +267,12 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Gc9-jF-oRt" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1612" y="1358"/>
+            <point key="canvasLocation" x="1234" y="1243"/>
         </scene>
         <!--Mention Count Table View Controller-->
         <scene sceneID="liG-5a-1eP">
             <objects>
-                <tableViewController id="FoP-Zj-m9u" customClass="MentionCountTableViewController" customModule="SmashTag" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="mention count" id="FoP-Zj-m9u" customClass="MentionCountTableViewController" customModule="SmashTag" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="Rd2-1C-rvd">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -300,9 +301,6 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
-                                <connections>
-                                    <segue destination="wrl-SO-xLt" kind="show" identifier="open tweet searching" id="nHD-g3-sDt"/>
-                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -313,7 +311,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2mI-UF-NMp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2542" y="1358"/>
+            <point key="canvasLocation" x="2353" y="1243"/>
         </scene>
         <!--Tweet Details View Controller-->
         <scene sceneID="r9b-wh-CpN">
@@ -331,7 +329,7 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fZz-hG-Q73" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-462" y="618"/>
+            <point key="canvasLocation" x="-670" y="501"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="eeF-77-s0h">
@@ -350,7 +348,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4qx-UV-Xvw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="628" y="119"/>
+            <point key="canvasLocation" x="148" y="27"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="pVY-hm-LUs">
@@ -369,10 +367,25 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="DlD-nO-jlZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="668" y="1358"/>
+            <point key="canvasLocation" x="148" y="1243"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="egc-Qa-qYl">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="UPi-OY-i2S" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <navigationController storyboardIdentifier="showImage1" automaticallyAdjustsScrollViewInsets="NO" id="kDK-gJ-LPt" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="sjw-iB-Kbf">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="g5X-Fd-FoN" kind="relationship" relationship="rootViewController" id="WkN-oZ-shI"/>
+                    </connections>
+                </navigationController>
+            </objects>
+            <point key="canvasLocation" x="3430" y="531"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="nHD-g3-sDt"/>
-    </inferredMetricsTieBreakers>
 </document>

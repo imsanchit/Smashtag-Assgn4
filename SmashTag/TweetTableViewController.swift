@@ -5,7 +5,6 @@
 //  Created by Sanchit Mittal on 08/08/17.
 //  Copyright © 2017 Sanchit Mittal. All rights reserved.
 //
-
 import UIKit
 import Twitter
 import CoreData
@@ -13,36 +12,33 @@ import CoreData
 
 class TweetTableViewController: UITableViewController , UITextFieldDelegate , ImageTweetProtocol , UINavigationControllerDelegate
 {
+    
+    var activityIndicator = UIActivityIndicatorView()
+
     func updateSearchText(_ text: String) {
         searchText = text
     }
     var container: NSPersistentContainer = ((UIApplication.shared.delegate as? AppDelegate)?.persistentContainer)!
-
+    
     var tweets = [Array<Twitter.Tweet>]()
     
     var searchText: String? {
-            didSet {
-                searchTextField?.text = searchText
-                searchTextField?.resignFirstResponder()
-                lastTwitterRequest = nil
-                tweets.removeAll()
-                tableView.reloadData()
-                searchForTweets()
-                title = searchText
-                
-                let defaults = UserDefaults.standard
-                var searchedTweets = defaults.stringArray(forKey: "searchedTweets") ?? [String]()
-                if searchedTweets.count==100 {
-                    searchedTweets.remove(at: 99)
-                    
-                    for i in (1...98).reversed() {
-                        let element = searchedTweets.remove(at: i)
-                        searchedTweets.insert(element, at: i+1)
-                    }
-                }
-                searchedTweets.insert(searchText!, at: 0)
-                defaults.set(searchedTweets, forKey: "searchedTweets")
+        didSet {
+            searchTextField?.text = searchText
+            searchTextField?.resignFirstResponder()
+            lastTwitterRequest = nil
+            tweets.removeAll()
+            tableView.reloadData()
+            
+            
+            tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+            activityIndicator.startAnimating()
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.searchForTweets()
             }
+            title = self.searchText
+        }
     }
     
     func insertTweets(_ newTweets: [Twitter.Tweet]) {
@@ -97,24 +93,22 @@ class TweetTableViewController: UITableViewController , UITextFieldDelegate , Im
     }
     
     private func printDatabaseStatistics(){
-//        if let context = container.viewContext {
-            container.viewContext.perform {
-                if let tweetCount = try? self.container.viewContext.count(for: Tweet.fetchRequest()) {
-                    print("\(tweetCount) tweets")
-                }
-                if let tweeterCount = try? self.container.viewContext.count(for : TwitterUser.fetchRequest()) {
-                    print("\(tweeterCount) twitter users")
-                }
-                if let userCount = try? self.container.viewContext.count(for : UserCount.fetchRequest()) {
-                    print("\(userCount)  users")
-                }
-                if let hashtagCount = try? self.container.viewContext.count(for : HashtagCount.fetchRequest()) {
-                    print("\(hashtagCount) hashtags")
-                }
-//            }
+        container.viewContext.perform {
+            if let tweetCount = try? self.container.viewContext.count(for: Tweet.fetchRequest()) {
+                print("\(tweetCount) tweets")
+            }
+            if let tweeterCount = try? self.container.viewContext.count(for : TwitterUser.fetchRequest()) {
+                print("\(tweeterCount) twitter users")
+            }
+            if let userCount = try? self.container.viewContext.count(for : UserCount.fetchRequest()) {
+                print("\(userCount)  users")
+            }
+            if let hashtagCount = try? self.container.viewContext.count(for : HashtagCount.fetchRequest()) {
+                print("\(hashtagCount) hashtags")
+            }
         }
     }
-
+    
     
     
     private func twitterRequest() -> Twitter.Request? {
@@ -124,6 +118,7 @@ class TweetTableViewController: UITableViewController , UITextFieldDelegate , Im
         return nil
     }
     private var lastTwitterRequest: Twitter.Request?
+    
     
     private func searchForTweets() {
         if let request = lastTwitterRequest?.newer ?? twitterRequest() {
@@ -136,21 +131,48 @@ class TweetTableViewController: UITableViewController , UITextFieldDelegate , Im
                         self?.insertTweets(newTweets)
                     }
                     self?.refreshControl?.endRefreshing()
+                    self?.activityIndicator.stopAnimating()
+                    self?.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
+                    self?.addSearchedTermToUserDefault()
+                    self?.tableView.reloadData()
                 }
             }
         } else {
             self.refreshControl?.endRefreshing()
+            activityIndicator.stopAnimating()
+            tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
+            addSearchedTermToUserDefault()
         }
     }
     
     @IBAction func refresh(_ sender: UIRefreshControl) {
-            searchForTweets()
+        searchForTweets()
+    }
+    
+    private func addSearchedTermToUserDefault(){
+        let defaults = UserDefaults.standard
+        var searchedTweets = defaults.stringArray(forKey: "searchedTweets") ?? [String]()
+        if searchedTweets.count==100 {
+            
+            for i in (1...98).reversed() {
+                let element = searchedTweets.remove(at: i)
+                searchedTweets.insert(element, at: i+1)
+            }
         }
+        searchedTweets.insert(self.searchText!, at: 0)
+        defaults.set(searchedTweets, forKey: "searchedTweets")
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.estimatedRowHeight = tableView.rowHeight
         tableView.rowHeight = UITableViewAutomaticDimension
+        
+        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
+        tableView.backgroundView = activityIndicatorView
+        tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+         activityIndicator = activityIndicatorView
     }
     
     

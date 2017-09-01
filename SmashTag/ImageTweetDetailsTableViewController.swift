@@ -118,28 +118,29 @@ class ImageTweetDetailsTableViewController: UITableViewController{
         switch indexPath.section {
         case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell", for: indexPath) as! ImageTableViewCell
-            DispatchQueue.main.async(){ [weak self] in
-                if let profileImageURL = self?.tweet.user.profileImageURL {
-                    if let imageData = try? Data(contentsOf: profileImageURL) {
-                        cell.tweetImageView.image = UIImage(data: imageData)
-                    }
-                } else {
-                    cell.tweetImageView.image = nil
+            if let profileImageURL = tweet.user.profileImageURL {
+                if let imageData = try? Data(contentsOf: profileImageURL) {
+                    cell.tweetImageView.image = UIImage(data: imageData)
                 }
+            } else {
+                cell.tweetImageView.image = nil
             }
             return cell
         case 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
             cell.textLabel?.text = tweet.urls[indexPath.row].description
+            cell.accessoryType = .disclosureIndicator
             return cell
         case 2:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
             cell.textLabel?.text = tweet.hashtags[indexPath.row].description
+            cell.accessoryType = .disclosureIndicator
             return cell
 
         case 3:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
             cell.textLabel?.text = tweet.userMentions[indexPath.row].description
+            cell.accessoryType = .disclosureIndicator
             return cell
         default:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
@@ -151,10 +152,31 @@ class ImageTweetDetailsTableViewController: UITableViewController{
         
         switch indexPath.section {
         case 0:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "showImage") as! ImageViewController
-                vc.imageURL = tweet.user.profileImageURL
-                self.present(vc, animated: true, completion: nil)
-                return
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "showImage") as! ImageViewController
+            vc.imageURL = tweet.user.profileImageURL
+            let navController = UINavigationController(rootViewController: vc)
+            self.present(navController, animated: true, completion: nil)
+            return
+        case 1:
+              let searchText = tweet.urls[indexPath.row].description
+            let url = URL(string: searchText)!
+            if #available(iOS 10.0, *) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            } else {
+                UIApplication.shared.openURL(url)
+            }
+        case 2:
+            self.delegate?.updateSearchText(tweet.hashtags[indexPath.row].description)
+            self.navigationController?.popViewController(animated: true)
+        case 3:
+            self.delegate?.updateSearchText(tweet.userMentions[indexPath.row].description)
+            self.navigationController?.popViewController(animated: true)
+        default : break
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        switch indexPath.section {
         case 1:
             let searchText = tweet.urls[indexPath.row].description
             let url = URL(string: searchText)!

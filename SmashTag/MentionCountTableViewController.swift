@@ -67,17 +67,19 @@ class MentionCountTableViewController: FetchedResultsTableViewController {
                 }
             }
             var swapped = false
-            for i in 0 ..< users.count-1 {
-                swapped = false
-                for j in 0 ..< users.count-i-1 {
-                    if (uc[j] < uc[j+1]) {
-                        swap(&uc[j], &uc[j+1]);
-                        swap(&users[j], &users[j+1]);
-                        swapped = true;
+            if users.count > 0 {
+                for i in 0 ..< users.count-1 {
+                    swapped = false
+                    for j in 0 ..< users.count-i-1 {
+                        if (uc[j] < uc[j+1]) {
+                            swap(&uc[j], &uc[j+1]);
+                            swap(&users[j], &users[j+1]);
+                            swapped = true;
+                        }
                     }
-                }
-                if (swapped == false){
-                    break
+                    if (swapped == false){
+                        break
+                    }
                 }
             }
         }catch{
@@ -127,17 +129,19 @@ class MentionCountTableViewController: FetchedResultsTableViewController {
                     }
                 }
                 var swapped = false
-                for i in 0 ..< hashtags.count-1 {
-                    swapped = false
-                    for j in 0 ..< hashtags.count-i-1 {
-                        if (hc[j] < hc[j+1]) {
-                            swap(&hc[j], &hc[j+1]);
-                            swap(&hashtags[j], &hashtags[j+1]);
-                            swapped = true;
+                if hashtags.count > 0 {
+                    for i in 0 ..< hashtags.count-1 {
+                        swapped = false
+                        for j in 0 ..< hashtags.count-i-1 {
+                            if (hc[j] < hc[j+1]) {
+                                swap(&hc[j], &hc[j+1]);
+                                swap(&hashtags[j], &hashtags[j+1]);
+                                swapped = true;
+                            }
                         }
-                    }
-                    if (swapped == false){
-                        break
+                        if (swapped == false){
+                            break
+                        }
                     }
                 }
             }catch{
@@ -193,24 +197,18 @@ class MentionCountTableViewController: FetchedResultsTableViewController {
         }
         return cell
     }
-    
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "open tweet searching" {
-            if let indexPath = tableView.indexPathForSelectedRow{
-                if let sTVC = segue.destination as? SmashTweetTableViewController {
-                    if indexPath.section == 0 {
-                        sTVC.searchText = users[indexPath.row]
-                    }
-                    else {
-                        sTVC.searchText = hashtags[indexPath.row]
-                    }
-                    
-                }
-            }
-        }
-    }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-           self.performSegue(withIdentifier: "open tweet searching", sender: indexPath)
+        
+        let navController =  self.tabBarController?.viewControllers?[0] as! UINavigationController
+        let sTVC = navController.visibleViewController as! SmashTweetTableViewController
+        if indexPath.section == 0 {
+            sTVC.searchText = users[indexPath.row]
+        }
+        else {
+            sTVC.searchText = hashtags[indexPath.row]
+        }
+        self.navigationController?.popViewController(animated: true)
+        tabBarController?.selectedIndex = 0
     }
 }

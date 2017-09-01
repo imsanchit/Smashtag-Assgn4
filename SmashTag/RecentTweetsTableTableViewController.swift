@@ -43,17 +43,9 @@ class RecentTweetsTableTableViewController: UITableViewController {
     
     
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        self.performSegue(withIdentifier: "open mention count", sender: indexPath)
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "open mention count" {
-            if let indexPath = tableView.indexPathForSelectedRow{
-                if let mcTVC = segue.destination as? MentionCountTableViewController {
-                mcTVC.mention = self.searchedTweets[indexPath.row].description
-                mcTVC.container = self.container
-                }
-            }
-        }
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "mention count") as! MentionCountTableViewController
+        vc.mention = self.searchedTweets[indexPath.row].description
+        vc.container = self.container
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
