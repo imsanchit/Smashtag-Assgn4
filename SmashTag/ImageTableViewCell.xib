@@ -19,13 +19,13 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6NY-tE-zk1">
-                        <rect key="frame" x="0.0" y="0.0" width="319" height="43"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                     </imageView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="6NY-tE-zk1" firstAttribute="centerX" secondItem="H2p-sc-9uM" secondAttribute="centerX" id="20w-3x-4aA"/>
-                    <constraint firstItem="6NY-tE-zk1" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="CzO-xD-EnY"/>
-                    <constraint firstItem="6NY-tE-zk1" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="MKq-WX-V6S"/>
+                    <constraint firstAttribute="trailing" secondItem="6NY-tE-zk1" secondAttribute="trailing" id="DPq-GZ-rqe"/>
+                    <constraint firstAttribute="bottom" secondItem="6NY-tE-zk1" secondAttribute="bottom" constant="1" id="g99-93-3Gw"/>
+                    <constraint firstAttribute="top" secondItem="6NY-tE-zk1" secondAttribute="top" id="skt-sv-Gck"/>
                     <constraint firstItem="6NY-tE-zk1" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="v3o-Us-1OV"/>
                 </constraints>
             </tableViewCellContentView>

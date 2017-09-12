@@ -10,13 +10,20 @@ import UIKit
 import CoreData
 
 class SmashTweetersTableViewController: FetchedResultsTableViewController {
-    
     var mention: String? { didSet { updateUI() } }
     var container: NSPersistentContainer? =
         (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer { didSet { updateUI() } }
     var fetchedResultsController: NSFetchedResultsController<TwitterUser>?
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TwitterUser Cell", for: indexPath)
+        if let twitterUser = fetchedResultsController?.object(at: indexPath) {
+            cell.textLabel?.text = twitterUser.handle
+            let tweetCount = tweetCountWithMentionBy(twitterUser)
+            cell.detailTextLabel?.text = "\(tweetCount) tweet\((tweetCount == 1) ? "" : "s")"
+        }
+        return cell
+    }
     private func updateUI() {
-        
         if let context = container?.viewContext, mention != nil {
             let request: NSFetchRequest<TwitterUser> = TwitterUser.fetchRequest()
             request.sortDescriptors = [NSSortDescriptor(
@@ -36,21 +43,9 @@ class SmashTweetersTableViewController: FetchedResultsTableViewController {
             tableView.reloadData()
         }
     }
-    
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TwitterUser Cell", for: indexPath)
-        if let twitterUser = fetchedResultsController?.object(at: indexPath) {
-            cell.textLabel?.text = twitterUser.handle
-            let tweetCount = tweetCountWithMentionBy(twitterUser)
-            cell.detailTextLabel?.text = "\(tweetCount) tweet\((tweetCount == 1) ? "" : "s")"
-            
 
-        }
-        return cell
-    }
     private func tweetCountWithMentionBy(_ twitterUser: TwitterUser) -> Int {
-        let request: NSFetchRequest<Tweet> = Tweet.fetchRequest()
+        let request: NSFetchRequest<TweetsData> = TweetsData.fetchRequest()
         request.predicate = NSPredicate(format: "text contains[c] %@ and tweeter = %@", mention!, twitterUser)
         return (try? twitterUser.managedObjectContext!.count(for: request)) ?? 0
     }

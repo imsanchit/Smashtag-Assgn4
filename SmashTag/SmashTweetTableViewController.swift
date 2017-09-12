@@ -10,13 +10,9 @@ import UIKit
 import Twitter
 
 class SmashTweetTableViewController: TweetTableViewController {
-
-    override func insertTweets(_ newTweets: [Twitter.Tweet]) {
+    override func insertTweets(_ newTweets: Twitter.Tweet) {
         super.insertTweets(newTweets)
     }
-    
-       
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "tweeters mentioning search term" {
             if let tweetersTVC = segue.destination as? SmashTweetersTableViewController {
@@ -27,9 +23,8 @@ class SmashTweetTableViewController: TweetTableViewController {
         else if segue.identifier == "tweetDetails" {
             if let _ = segue.destination as? ImageTweetDetailsTableViewController {
                 if let cell = sender as? TweetTableViewCell , let indexPath = tableView.indexPath(for: cell) {
-                    let tweet: Twitter.Tweet = tweets[indexPath.section][indexPath.row]
+                    let tweet: Twitter.Tweet = tweets[indexPath.row]
                     let tdvc = segue.destination as! ImageTweetDetailsTableViewController
-                        tdvc.delegate = self
                         tdvc.tweet = tweet
                 }
             }

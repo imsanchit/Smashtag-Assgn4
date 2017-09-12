@@ -9,27 +9,23 @@
 import UIKit
 import CoreData
 
-class RecentTweetsTableTableViewController: UITableViewController {
-
-    var container: NSPersistentContainer? = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer
-
-    var searchedTweets: [String] = []
+class RecentTweetsTableTableViewController : UITableViewController{
+    private var container: NSPersistentContainer? = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer
+    private var searchedTweets: [String] = [] {
+        didSet {
+            tableView.reloadData()
+        }
+    }
     
     override func viewDidLoad() {
-//        tableView.contentInset.top = 20
-        let defaults = UserDefaults.standard
-        searchedTweets = defaults.stringArray(forKey: "searchedTweets") ?? [String]()
+        super.viewDidLoad()
+        loadSavedRecentTerms()
     }
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return "Recently Searched"
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return searchedTweets.count
     }
@@ -38,14 +34,17 @@ class RecentTweetsTableTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "recentTweets", for: indexPath)
         cell.textLabel?.text = searchedTweets[indexPath.row].description
         cell.accessoryType = .detailButton
+        
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let vc = storyboard?.instantiateViewController(withIdentifier: "MentionCountIdentifier") as! MentionCountTableViewController
+        vc.mention = searchedTweets[indexPath.row].description
+        navigationController?.pushViewController(vc, animated: true)
+    }
     
-    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "mention count") as! MentionCountTableViewController
-        vc.mention = self.searchedTweets[indexPath.row].description
-        vc.container = self.container
-        self.navigationController?.pushViewController(vc, animated: true)
+    func loadSavedRecentTerms() {
+        searchedTweets = UserDefaults.standard.stringArray(forKey: "searchedTweets") ?? [String]()
     }
 }

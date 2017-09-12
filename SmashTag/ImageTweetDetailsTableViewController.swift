@@ -9,189 +9,135 @@
 import UIKit
 import Twitter
 
-protocol ImageTweetProtocol {
-    func updateSearchText(_ text: String)
-
+enum sectionTypes {
+    case images
+    case urls
+    case hashtags
+    case users
     
-}
-class ImageTweetDetailsTableViewController: UITableViewController{
-    
-    
-    var delegate: ImageTweetProtocol?
-    var tweet: Twitter.Tweet! { didSet { updateUI() } }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        tableView.estimatedRowHeight = tableView.rowHeight
-        tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.contentInset.top = 20
-        
-        let nib = UINib(nibName: "ImageTableViewCell", bundle: nil)
-        tableView.register(nib, forCellReuseIdentifier: "imageCell")
+    func sectionTitle(_ tweet: Twitter.Tweet) -> String? {
+        switch self {
+        case .images:
+            return tweet.media.count > 0 ? "Images" : nil
+        case .urls:
+            return tweet.urls.count > 0 ? "Urls" : nil
+        case .hashtags:
+            return tweet.hashtags.count > 0 ? "Hashtags" : nil
+        case .users:
+            return tweet.userMentions.count > 0 ? "User Mentions" : nil
+        }
     }
     
-    private func updateUI(){
-//            print("count is \(tweet.urls.count)  \(tweet.hashtags.count)  \(tweet.userMentions.count)  ")
-           tableView.reloadData()
-    }
-    
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 4
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0:
-            return 1
-        case 1:
+    func numberOfRow(_ tweet: Twitter.Tweet) -> Int {
+        switch self {
+        case .images:
+            return tweet.media.count
+        case .urls:
             return tweet.urls.count
-        case 2:
+        case .hashtags:
             return tweet.hashtags.count
-        case 3:
+        case .users:
             return tweet.userMentions.count
-        default:
-            return 1
         }
     }
     
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch section {
-        case 0:
-            if tweet.user.profileImageURL != nil {
-                return UITableViewAutomaticDimension
-            }
-            else{
-                return 0
-            }
-        case 1:
-            if tweet.urls.count != 0 {
-                return UITableViewAutomaticDimension
-            }
-            else{
-                return 0
-            }
-        case 2:
-            if tweet.hashtags.count != 0 {
-                return UITableViewAutomaticDimension
-            }
-            else{
-                return 0
-            }
-        case 3:
-            if tweet.userMentions.count != 0 {
-                return UITableViewAutomaticDimension
-            }
-            else{
-                return 0
-            }
-        default:
-            return 0
-        }
-    }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch section {
-        case 0:
-            return "Images"
-        case 1:
-            return "Urls"
-        case 2:
-            return "Hashtags"
-        case 3:
-            return "User Mentions"
+    func description(for tweet : Twitter.Tweet , at indexPath: IndexPath) -> String {
+        switch self {
+        case .users:
+            return tweet.userMentions[indexPath.row].description
+        case .urls:
+            return tweet.urls[indexPath.row].description
+        case .hashtags:
+            return tweet.hashtags[indexPath.row].description
         default:
             return ""
         }
     }
+}
 
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.section==0 &&  indexPath.row==0 {
-            return tableView.bounds.width
-        }
-        else {
-            return UITableViewAutomaticDimension
+
+
+class ImageTweetDetailsTableViewController: UITableViewController{
+    let sectionTypes: [sectionTypes] = [.images, .urls, .hashtags, .users]
+    var tweet: Twitter.Tweet! {
+        didSet {
+            tableView.reloadData()
         }
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 45.0
+        let nib = UINib(nibName: "ImageTableViewCell", bundle: nil)
+        tableView.register(nib, forCellReuseIdentifier: "imageCell")
+    }
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return sectionTypes.count
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let sectionType = sectionTypes[section]
+        return sectionType.numberOfRow(tweet)
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let sectionType = sectionTypes[section]
+        return sectionType.sectionTitle(tweet)
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        switch indexPath.section {
-        case 0:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell", for: indexPath) as! ImageTableViewCell
-            if let profileImageURL = tweet.user.profileImageURL {
-                if let imageData = try? Data(contentsOf: profileImageURL) {
-                    cell.tweetImageView.image = UIImage(data: imageData)
-                }
-            } else {
-                cell.tweetImageView.image = nil
-            }
-            return cell
-        case 1:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
-            cell.textLabel?.text = tweet.urls[indexPath.row].description
-            cell.accessoryType = .disclosureIndicator
-            return cell
-        case 2:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
-            cell.textLabel?.text = tweet.hashtags[indexPath.row].description
-            cell.accessoryType = .disclosureIndicator
-            return cell
+        let sectionType = sectionTypes[indexPath.section]
 
-        case 3:
+        switch sectionType {
+        case .images:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell", for: indexPath) as! ImageTableViewCell
+            cell.configureCellWithMedia(tweet.media[indexPath.row])
+            return cell
+        case .hashtags, .urls, .users:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
-            cell.textLabel?.text = tweet.userMentions[indexPath.row].description
+            cell.textLabel?.text = sectionType.description(for: tweet, at: indexPath)
             cell.accessoryType = .disclosureIndicator
             return cell
-        default:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath)
-            return cell
+            
         }
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        switch indexPath.section {
-        case 0:
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "showImage") as! ImageViewController
-            vc.imageURL = tweet.user.profileImageURL
-            let navController = UINavigationController(rootViewController: vc)
-            self.present(navController, animated: true, completion: nil)
+        let sectionType = sectionTypes[indexPath.section]
+        switch sectionType {
+        case .images:
+            let navigationController = storyboard?.instantiateViewController(withIdentifier: "ImageViewNavigationControllerIdentifier") as! UINavigationController
+            let vc = navigationController.topViewController as! ImageViewController
+            vc.imageURL = tweet.media[indexPath.row].url
+            self.present(navigationController, animated: true, completion: nil)
             return
-        case 1:
-              let searchText = tweet.urls[indexPath.row].description
+        case .urls:
+            let searchText = sectionType.description(for: tweet, at: indexPath)
             let url = URL(string: searchText)!
             if #available(iOS 10.0, *) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             } else {
                 UIApplication.shared.openURL(url)
             }
-        case 2:
-            self.delegate?.updateSearchText(tweet.hashtags[indexPath.row].description)
-            self.navigationController?.popViewController(animated: true)
-        case 3:
-            self.delegate?.updateSearchText(tweet.userMentions[indexPath.row].description)
-            self.navigationController?.popViewController(animated: true)
-        default : break
+        case .hashtags, .users:
+            let vc = storyboard?.instantiateViewController(withIdentifier: "TweetTableControlllerIdentifier") as! TweetTableViewController
+            vc.searchText = sectionType.description(for: tweet, at: indexPath)
+            
+            navigationController?.pushViewController(vc, animated: true)
         }
     }
 
-    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        switch indexPath.section {
-        case 1:
-            let searchText = tweet.urls[indexPath.row].description
-            let url = URL(string: searchText)!
-            if #available(iOS 10.0, *) {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            } else {
-                UIApplication.shared.openURL(url)
-            }
-        case 2:
-            self.delegate?.updateSearchText(tweet.hashtags[indexPath.row].description)
-            self.navigationController?.popViewController(animated: true)
-        case 3:
-            self.delegate?.updateSearchText(tweet.userMentions[indexPath.row].description)
-            self.navigationController?.popViewController(animated: true)
-        default : break
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 0 {
+            let mediaItem = tweet.media[indexPath.row]
+            let aspectRatio = mediaItem.aspectRatio
+            let height = UIScreen.main.bounds.width * CGFloat(aspectRatio)
+            
+            return height
         }
+        
+        return super.tableView(tableView, heightForRowAt: indexPath)
     }
 }

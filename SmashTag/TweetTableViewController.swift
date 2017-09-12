@@ -9,203 +9,156 @@ import UIKit
 import Twitter
 import CoreData
 
-
-class TweetTableViewController: UITableViewController , UITextFieldDelegate , ImageTweetProtocol , UINavigationControllerDelegate
-{
-    
-    var activityIndicator = UIActivityIndicatorView()
-
-    func updateSearchText(_ text: String) {
-        searchText = text
+class TweetTableViewController: UITableViewController , UINavigationControllerDelegate {
+    private var container: NSPersistentContainer = ((UIApplication.shared.delegate as? AppDelegate)?.persistentContainer)!
+    fileprivate var tweets : [Twitter.Tweet] = [] {
+        didSet {
+            saveTweets(tweets)
+            tableView.reloadData()
+        }
     }
-    var container: NSPersistentContainer = ((UIApplication.shared.delegate as? AppDelegate)?.persistentContainer)!
-    
-    var tweets = [Array<Twitter.Tweet>]()
-    
     var searchText: String? {
         didSet {
-            searchTextField?.text = searchText
-            searchTextField?.resignFirstResponder()
-            lastTwitterRequest = nil
-            tweets.removeAll()
-            tableView.reloadData()
-            
-            
-            tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-            activityIndicator.startAnimating()
-            
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.searchForTweets()
-            }
-            title = self.searchText
-        }
-    }
-    
-    func insertTweets(_ newTweets: [Twitter.Tweet]) {
-        self.tweets.insert(newTweets , at: 0)
-        self.tableView.insertSections([0], with: .fade)
-        updateDatabase(with: newTweets)
-        updateSearchTermUser(newTweets)
-        updateSearchTermHashtag(newTweets)
-        printDatabaseStatistics()
-    }
-    
-    
-    
-    private func updateDatabase(with tweets: [Twitter.Tweet]){
-        print("starting database load")
-        container.performBackgroundTask { [weak self] context in
-            for twitterInfo in tweets {
-                _ = try? Tweet.findOrCreateTweet(matching: twitterInfo, in: context)
-            }
-            try? context.save()
-            print("done loading database")
-        }
-    }
-    
-    
-    private func updateSearchTermUser(_ tweets: [Twitter.Tweet]){
-        print("starting database load searchTerm")
-        container.performBackgroundTask { [weak self] context in
-            for twitterInfo in tweets {
-                for user in twitterInfo.userMentions {
-                    _ = try? UserCount.CreateUser((self?.searchText!)!, user.description, in: context)
-                }
-            }
-            try? context.save()
-            print("done loading database")
-        }
-    }
-    
-    
-    private func updateSearchTermHashtag(_ tweets: [Twitter.Tweet]){
-        print("starting database load hashtag")
-        container.performBackgroundTask { [weak self] context in
-            for twitterInfo in tweets {
-                for hashtag in twitterInfo.hashtags {
-                    _ = try? HashtagCount.CreateHashtag((self?.searchText!)!, hashtag.description, in: context)
-                }
-            }
-            try? context.save()
-            print("done loading database")
-            
-        }
-    }
-    
-    private func printDatabaseStatistics(){
-        container.viewContext.perform {
-            if let tweetCount = try? self.container.viewContext.count(for: Tweet.fetchRequest()) {
-                print("\(tweetCount) tweets")
-            }
-            if let tweeterCount = try? self.container.viewContext.count(for : TwitterUser.fetchRequest()) {
-                print("\(tweeterCount) twitter users")
-            }
-            if let userCount = try? self.container.viewContext.count(for : UserCount.fetchRequest()) {
-                print("\(userCount)  users")
-            }
-            if let hashtagCount = try? self.container.viewContext.count(for : HashtagCount.fetchRequest()) {
-                print("\(hashtagCount) hashtags")
-            }
-        }
-    }
-    
-    
-    
-    private func twitterRequest() -> Twitter.Request? {
-        if let query = searchText, !query.isEmpty {
-            return Twitter.Request(search: query, count: 100)
-        }
-        return nil
-    }
-    private var lastTwitterRequest: Twitter.Request?
-    
-    
-    private func searchForTweets() {
-        if let request = lastTwitterRequest?.newer ?? twitterRequest() {
-            lastTwitterRequest = request
-            request.fetchTweets { [weak self] newTweets in
-                DispatchQueue.main.async {
-                    if request == self?.lastTwitterRequest {
-                        self?.tweets.insert(newTweets, at:0)
-                        self?.tableView.insertSections([0], with: .fade)
-                        self?.insertTweets(newTweets)
-                    }
-                    self?.refreshControl?.endRefreshing()
-                    self?.activityIndicator.stopAnimating()
-                    self?.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
-                    self?.addSearchedTermToUserDefault()
-                    self?.tableView.reloadData()
-                }
-            }
-        } else {
-            self.refreshControl?.endRefreshing()
-            activityIndicator.stopAnimating()
-            tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
-            addSearchedTermToUserDefault()
+            searchForTweets(searchText: searchText!)
         }
     }
     
     @IBAction func refresh(_ sender: UIRefreshControl) {
-        searchForTweets()
+        searchForTweets(searchText: searchText ?? "")
     }
-    
-    private func addSearchedTermToUserDefault(){
-        let defaults = UserDefaults.standard
-        var searchedTweets = defaults.stringArray(forKey: "searchedTweets") ?? [String]()
-        if searchedTweets.count==100 {
-            
-            for i in (1...98).reversed() {
-                let element = searchedTweets.remove(at: i)
-                searchedTweets.insert(element, at: i+1)
-            }
-        }
-        searchedTweets.insert(self.searchText!, at: 0)
-        defaults.set(searchedTweets, forKey: "searchedTweets")
-    }
-    
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        tableView.estimatedRowHeight = tableView.rowHeight
-        tableView.rowHeight = UITableViewAutomaticDimension
-        
-        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
-        tableView.backgroundView = activityIndicatorView
-        tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-         activityIndicator = activityIndicatorView
-    }
-    
     
     @IBOutlet weak var searchTextField: UITextField! {
         didSet {
             searchTextField.delegate = self
         }
     }
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == searchTextField {
-            searchText = searchTextField.text
-        }
-        return true
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 45.0
+        title = "Search Tweets"
+        searchTextField?.text = searchText
     }
     
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        searchTextField.resignFirstResponder()
+        
+        if segue.identifier == "SmashTweetersTableViewControllerIdentifier" {
+            if let tweetersTVC = segue.destination as? SmashTweetersTableViewController {
+                tweetersTVC.mention = searchText
+                tweetersTVC.container = container
+            }
+        }
+        else if segue.identifier == "tweetDetails" {
+            if let _ = segue.destination as? ImageTweetDetailsTableViewController {
+                if let cell = sender as? TweetTableViewCell , let indexPath = tableView.indexPath(for: cell) {
+                    let tweet: Twitter.Tweet = tweets[indexPath.row]
+                    let tdvc = segue.destination as! ImageTweetDetailsTableViewController
+                    tdvc.tweet = tweet
+                }
+            }
+        }
+    }
+    
+    private func searchForTweets(searchText: String) {
+        guard !searchText.isEmpty else {
+            stopAnimating()
+            return
+        }
+        
+        let request = Twitter.Request(search: searchText, count: 100)
+        startAnimating()
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            request.fetchTweets { [weak self] newTweets in
+                guard let strongSelf = self else { return }
+                DispatchQueue.main.async {
+                    strongSelf.stopAnimating()
+                    strongSelf.addSearchedTermToUserDefault(searchText: searchText)
+                    strongSelf.tweets = newTweets
+                }
+            }
+        }
+    }
+    
+    fileprivate func startAnimating() {
+        if let refreshControl = tableView.refreshControl {
+            tableView.setContentOffset(CGPoint(x: 0, y: -refreshControl.bounds.height), animated: true)
+            refreshControl.beginRefreshing()
+        }
+    }
+
+    fileprivate func stopAnimating() {
+        if let refreshControl = tableView.refreshControl {
+            refreshControl.endRefreshing()
+        }
+    }
+    
+    func saveTweets(_ newTweets: [Twitter.Tweet]) {
+        for tweet in newTweets{
+            updateDatabase(with: tweet)
+        }
+        printDatabaseStatistics()
+    }
+    
+    
+    private func updateDatabase(with tweets: Twitter.Tweet){
+        container.performBackgroundTask {context in
+            _ = try? TweetsData.findOrCreateTweet(matching: tweets, in: context)
+            try? context.save()
+        }
+    }
+    
+    private func printDatabaseStatistics(){
+            container.viewContext.perform {
+            if let tweetCount = try? self.container.viewContext.count(for: TweetsData.fetchRequest()) {
+                print("\(tweetCount) tweets")
+            }
+            if let tweeterCount = try? self.container.viewContext.count(for : TwitterUser.fetchRequest()) {
+                print("\(tweeterCount) twitter users")
+            }
+            if let userCount = try? self.container.viewContext.count(for : UserMentions.fetchRequest()) {
+                print("\(userCount)  users")
+            }
+            if let hashtagCount = try? self.container.viewContext.count(for : HashTag.fetchRequest()) {
+                print("\(hashtagCount) hashtags")
+            }
+        }
+    }
+    
+    private func addSearchedTermToUserDefault(searchText: String) {
+        let defaults = UserDefaults.standard
+        var searchedTweets: [String] = defaults.stringArray(forKey: "searchedTweets") ?? []
+        
+        
+        if searchedTweets.count == 100 {
+            searchedTweets.removeLast()
+        }
+        
+        searchedTweets.insert(searchText, at: 0)
+        defaults.set(searchedTweets, forKey: "searchedTweets")
+    }
+}
+
+extension TweetTableViewController {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tweets.count
     }
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tweets[section].count
-    }
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "test", for: indexPath)
-        let tweet: Twitter.Tweet = tweets[indexPath.section][indexPath.row]
-        if let tweetCell = cell as? TweetTableViewCell {
-            tweetCell.configureCellWithTweet(tweet)
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: "test", for: indexPath) as! TweetTableViewCell
+        cell.configureCellWithTweet(tweets[indexPath.row])
+        
         return cell
     }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "\(tweets.count-section)"
+}
+
+extension TweetTableViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        searchText = textField.text
+        searchTextField.resignFirstResponder()
+        
+        return true
     }
 }

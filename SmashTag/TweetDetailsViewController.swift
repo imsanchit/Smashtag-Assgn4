@@ -10,14 +10,5 @@ import UIKit
 import Twitter
 
 class TweetDetailsViewController: UITabBarController {
-//    var tweet: Twitter.Tweet!{ didSet { updateUI() } }
 
-//    private func updateUI() {
-//
-//        
-//        let tabBarControllers = self.viewControllers
-//        let itdtvc = tabBarControllers?[0] as! ImageTweetDetailsTableViewController
-//        itdtvc.tweet = tweet
-//    }
 }
-//big nerd ranch
