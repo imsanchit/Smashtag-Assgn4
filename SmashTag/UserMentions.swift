@@ -11,10 +11,25 @@ import CoreData
 import Twitter
 
 class UserMentions: NSManagedObject {
-        static func findOrCreateUserMention(matching twitterInfo: Mention , in context: NSManagedObjectContext) throws -> UserMentions {
+    static func findOrCreateUserMention(_ tweet : TweetsData, matching mention: Mention , in context: NSManagedObjectContext) throws  {
+        let request: NSFetchRequest<UserMentions> = UserMentions.fetchRequest()
+        request.predicate = NSPredicate(format: "keyword = %@", mention.keyword)
+        
+        do {
+            let matches = try context.fetch(request)
+            if matches.count > 0 {
+//                assert(matches.count > 1, "UserMentions duplicate added -- database incosistency")
+                
+                return
+            }
+        }
+        catch{
+            throw error
+        }
+        
         let userMention = UserMentions(context: context)
-        userMention.keyword = twitterInfo.keyword
-        userMention.desc = twitterInfo.description
-        return userMention
+        userMention.keyword = mention.keyword
+        userMention.desc = mention.description
+        userMention.tweets = tweet
     }
 }

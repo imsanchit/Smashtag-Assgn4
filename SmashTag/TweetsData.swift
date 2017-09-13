@@ -18,13 +18,15 @@ class TweetsData: NSManagedObject {
         do {
             let matches = try context.fetch(request)
             if matches.count > 0 {
-                assert(matches.count == 1, "Tweet.findOrCreateTweet -- database incosistency")
+//                assert(matches.count > 1, "Tweet.findOrCreateTweet -- database incosistency")
+                
                 return matches[0]
             }
         }
         catch{
             throw error
         }
+        
         let tweetsData = TweetsData(context: context)
         tweetsData.unique = twitterInfo.identifier
         tweetsData.text = twitterInfo.text
@@ -32,11 +34,13 @@ class TweetsData: NSManagedObject {
         
         do {
             tweetsData.tweeter = try TwitterUser.findOrCreateTwitterUser(matching: twitterInfo.user, in: context)
+            
             for userMention in twitterInfo.userMentions {
-                tweetsData.userMention?.adding(try UserMentions.findOrCreateUserMention(matching: userMention, in: context))
+                try UserMentions.findOrCreateUserMention(tweetsData ,matching: userMention, in: context)
             }
+
             for hashtag in twitterInfo.hashtags {
-                tweetsData.hashTags?.adding(try HashTag.findOrCreateUserHashtag(matching: hashtag, in: context))
+                try HashTag.findOrCreateUserHashtag(tweetsData, matching: hashtag, in: context)
             }
         } catch {
             throw error
