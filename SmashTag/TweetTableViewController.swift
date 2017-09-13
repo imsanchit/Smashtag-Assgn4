@@ -47,7 +47,6 @@ class TweetTableViewController: UITableViewController , UINavigationControllerDe
         if segue.identifier == "SmashTweetersTableViewControllerIdentifier" {
             if let tweetersTVC = segue.destination as? SmashTweetersTableViewController {
                 tweetersTVC.mention = searchText
-                tweetersTVC.container = container
             }
         }
         else if segue.identifier == "tweetDetails" {

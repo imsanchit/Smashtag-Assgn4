@@ -17,7 +17,7 @@ class TwitterUser: NSManagedObject {
         do {
             let matches = try context.fetch(request)
             if matches.count > 0 {
-                assert(matches.count == 1, "TweetUser.findOrCreateTwitterUser -- database incosistency")
+//                assert(matches.count == 1, "TweetUser.findOrCreateTwitterUser -- database incosistency")
                 return matches[0]
             }
         }

@@ -3,7 +3,7 @@
     <entity name="HashTag" representedClassName=".HashTag" syncable="YES" codeGenerationType="category">
         <attribute name="desc" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="keyword" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="tweets" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TweetsData" inverseName="hashTags" inverseEntity="TweetsData" syncable="YES"/>
+        <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TweetsData" inverseName="hashTags" inverseEntity="TweetsData" syncable="YES"/>
     </entity>
     <entity name="TweetsData" representedClassName=".TweetsData" syncable="YES" codeGenerationType="category">
         <attribute name="created" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -21,7 +21,7 @@
     <entity name="UserMentions" representedClassName=".UserMentions" syncable="YES" codeGenerationType="category">
         <attribute name="desc" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="keyword" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="tweets" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TweetsData" inverseName="userMention" inverseEntity="TweetsData" syncable="YES"/>
+        <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TweetsData" inverseName="userMention" inverseEntity="TweetsData" syncable="YES"/>
     </entity>
     <elements>
         <element name="HashTag" positionX="-216" positionY="-48" width="128" height="88"/>
